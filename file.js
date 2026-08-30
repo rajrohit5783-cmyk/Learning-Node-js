@@ -15,11 +15,22 @@ const fs = require("fs");
 // const result = fs.readFileSync('./contacts.txt', "utf-8")
 // console.log(result);
 
-fs.readFile('./contacts.txt' , "utf-8", (err,result) => {
-    if (err) {
-        console.log("Error", err);
-    }
-    else{
-        console.log(result);
-    }
-});
+// fs.readFile('./contacts.txt' , "utf-8", (err,result) => {
+//     if (err) {
+//         console.log("Error", err);
+//     }
+//     else{
+//         console.log(result);
+//     }
+// });
+fs.appendFileSync("./text.txt",`${Date.now()} hey there\n`);
+
+// fs.copyFileSync('./text.txt','./copy.txt' );
+
+// fs.unlinkSync('./copy.txt');
+
+console.log(fs.statSync('./text.txt'));
+
+fs.mkdirSync("my-docss/a/b", {recursive: true});
+
+
