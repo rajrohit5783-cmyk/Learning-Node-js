@@ -27,13 +27,13 @@ app.route('/api/users/:id').get((req,res) => {
     const user = users.find(user => user.id === id);
     return res.json(user);
 
-}).put(req,res => {
+}).patch(req,res => {
      //Edit with user ID
      res.join.json({status: "Pending"});
 })
 .delete((req,res) => {
-    
-
+    //Delete user with id
+    res.join.json({status: "Pending"});
 });
 
 app.post('/api/users', (req,res)=> {
