@@ -14,6 +14,9 @@ app.get('/about',(req,res) => {
     return res.send(`Hello ${req.query.name}`)
 })
 
+app.get('/feature',(req,res)=>{
+    return res.send("Profile Page");
+})
 
 
 // function myHandler(req, res) {
