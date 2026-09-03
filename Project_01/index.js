@@ -1,9 +1,17 @@
 const express = require('express');
 const users = require('./MOCK_DATA.json');
+const fs = require('fs');
+
 
 const app = express();
 
 const PORT = 8000;
+
+//Middleware - Plugin
+app.use(express.urlencoded({extended: false}));
+
+
+// HTML route
 app.get("/users", (req, res) => {
     const html = `
         <ul>
@@ -11,37 +19,42 @@ app.get("/users", (req, res) => {
         </ul>
     `;
 
-    //REST API
-
-    app.get("/api/users", (req, res) => {
-        return res.json(users);
-    });
-
-
     res.send(html);
 });
 
+// REST API - Get all users
+app.get("/api/users", (req, res) => {
+    return res.json(users);
+});
 
-app.route('/api/users/:id').get((req, res) => {
-    const id = Number(req.params.id);
-    const user = users.find(user => user.id === id);
-    return res.json(user);
+// REST API - Get, Update and Delete user by ID
+app.route('/api/users/:id')
+    .get((req, res) => {
+        const id = Number(req.params.id);
+        const user = users.find(user => user.id === id);
 
-}).patch(req, res => {
-    //Edit with user ID
-    res.join.json({ status: "Pending" });
-})
+        return res.json(user);
+    })
+    .patch((req, res) => {
+        // Edit user with ID
+        return res.json({ status: "Pending" });
+    })
     .delete((req, res) => {
-        //Delete user with id
-        res.join.json({ status: "Pending" });
+        // Delete user with ID
+        return res.json({ status: "Pending" });
     });
 
+// REST API - Create user
 app.post('/api/users', (req, res) => {
-    //TODO: Create a new user
-    return res.join({ status: "pending" });
-
+    // TODO: Create a new user
+    const body = req.body;
+    users.push({ ...body, id: users.length + 1});
+    fs.writeFile('./MOCK_DATA.json',JSON.stringify(users),(err,data) => {
+        return res.json({ status: "Success", id: users.length});
+    })
+    
 });
 
 app.listen(PORT, () => {
     console.log(`Server Started at PORT ${PORT}`);
-});
+}); 
