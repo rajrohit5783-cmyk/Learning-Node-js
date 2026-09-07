@@ -4,7 +4,6 @@ const fs = require('fs');
 
 
 const app = express();
-
 const PORT = 8000;
 
 //Middleware - Plugin
@@ -33,7 +32,8 @@ app.get("/users", (req, res) => {
 
 // REST API - Get all users
 app.get("/api/users", (req, res) => {
-
+    res.setHeader("X-MyName", "Rohit Raj"); //Custom Header
+    //Always add X to custom headers
     return res.json(users);
 });
 
