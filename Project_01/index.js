@@ -1,75 +1,287 @@
-const express = require('express');
-const users = require('./MOCK_DATA.json');
+const express = require("express");
 const mongoose = require("mongoose");
-const fs = require('fs');
-
+const fs = require("fs");
 
 const app = express();
 const PORT = 8000;
 
-//Middleware - Plugin
+
+// ===============================
+// MongoDB Connection
+// ===============================
+
+mongoose
+    .connect("mongodb://127.0.0.1:27017/youtube-app-1")
+    .then(() => console.log("MongoDB Connected"))
+    .catch((err) => console.log("Mongo Error", err));
+
+
+// ===============================
+// Schema
+// ===============================
+
+const userSchema = new mongoose.Schema(
+    {
+        firstName: {
+            type: String,
+            required: true,
+        },
+
+        lastName: {
+            type: String,
+        },
+
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+        },
+
+        jobTitle: {
+            type: String,
+        },
+
+        gender: {
+            type: String,
+        },
+    },
+    {
+        timestamps: true,
+    }
+);
+
+
+// ===============================
+// Model
+// ===============================
+
+const User = mongoose.model("user", userSchema);
+
+
+// ===============================
+// Middleware
+// ===============================
+
+// Parse form data
 app.use(express.urlencoded({ extended: false }));
 
+
+// Request logging middleware
 app.use((req, res, next) => {
-    fs.appendFile("log.txt", `\n${Date.now()}: ${req.method}: ${req.path}`, (err,data) => {
-        next();
-    })
+    fs.appendFile(
+        "log.txt",
+        `\n${Date.now()}: ${req.method}: ${req.path}`,
+        (err) => {
+            if (err) {
+                console.log("Log Error:", err);
+            }
 
-    
+            next();
+        }
+    );
 });
 
 
+// ===============================
+// GET /users
+// HTML Route
+// ===============================
 
-// HTML route
-app.get("/users", (req, res) => {
-    const html = `
-        <ul>
-            ${users.map(user => `<li>${user.first_name}</li>`).join("")}
-        </ul>
-    `;
+app.get("/users", async (req, res) => {
+    try {
+        const allDbUsers = await User.find({});
 
-    res.send(html);
+        const html = `
+            <ul>
+                ${allDbUsers
+                    .map(
+                        (user) =>
+                            `<li>${user.firstName} - ${user.email}</li>`
+                    )
+                    .join("")}
+            </ul>
+        `;
+
+        res.send(html);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Something went wrong");
+    }
 });
 
-// REST API - Get all users
-app.get("/api/users", (req, res) => {
-    res.setHeader("X-MyName", "Rohit Raj"); //Custom Header
-    //Always add X to custom headers
-    return res.json(users);
+
+// ===============================
+// GET /api/users
+// REST API - Get All Users
+// ===============================
+
+app.get("/api/users", async (req, res) => {
+    try {
+        const allDbUsers = await User.find({});
+
+        res.setHeader("X-MyName", "Rohit Raj");
+
+        return res.json(allDbUsers);
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            msg: "Something went wrong",
+        });
+    }
 });
 
-// REST API - Get, Update and Delete user by ID
-app.route('/api/users/:id')
-    .get((req, res) => {
-        const id = Number(req.params.id);
-        const user = users.find(user => user.id === id);
-        if(!user) return res.status(404).json({error: 'user not found'})
 
-        return res.json(user);
+// ===============================
+// /api/users/:id
+// GET, PATCH, DELETE
+// ===============================
+
+app.route("/api/users/:id")
+
+    // ===============================
+    // GET USER BY ID
+    // ===============================
+
+    .get(async (req, res) => {
+        try {
+            const user = await User.findById(req.params.id);
+
+            if (!user) {
+                return res.status(404).json({
+                    error: "User not found",
+                });
+            }
+
+            return res.json(user);
+        } catch (error) {
+            return res.status(400).json({
+                error: "Invalid User ID",
+            });
+        }
     })
-    .patch((req, res) => {
-        // Edit user with ID
-        return res.json({ status: "Pending" });
+
+
+    // ===============================
+    // UPDATE USER
+    // ===============================
+
+    .patch(async (req, res) => {
+        try {
+            const body = req.body;
+
+            const updatedUser = await User.findByIdAndUpdate(
+                req.params.id,
+                {
+                    firstName: body.first_name,
+                    lastName: body.last_name,
+                    email: body.email,
+                    gender: body.gender,
+                    jobTitle: body.job_title,
+                },
+                {
+                    new: true,
+                }
+            );
+
+            if (!updatedUser) {
+                return res.status(404).json({
+                    error: "User not found",
+                });
+            }
+
+            return res.json({
+                msg: "User updated successfully",
+                user: updatedUser,
+            });
+        } catch (error) {
+            return res.status(400).json({
+                error: error.message,
+            });
+        }
     })
-    .delete((req, res) => {
-        // Delete user with ID
-        return res.json({ status: "Pending" });
+
+
+    // ===============================
+    // DELETE USER
+    // ===============================
+
+    .delete(async (req, res) => {
+        try {
+            const deletedUser = await User.findByIdAndDelete(
+                req.params.id
+            );
+
+            if (!deletedUser) {
+                return res.status(404).json({
+                    error: "User not found",
+                });
+            }
+
+            return res.json({
+                msg: "User deleted successfully",
+                user: deletedUser,
+            });
+        } catch (error) {
+            return res.status(400).json({
+                error: "Invalid User ID",
+            });
+        }
     });
 
-// REST API - Create user
-app.post('/api/users', (req, res) => {
-    // TODO: Create a new user
-    const body = req.body;
-    if(!body || !body.first_name || !body.email || !body.last_name || !body.gender || !body.job_title)
-        return res.status(400).json({msg : 'All fields are req...'})
 
-    users.push({ ...body, id: users.length + 1 });
-    fs.writeFile('./MOCK_DATA.json', JSON.stringify(users), (err, data) => {
-        return res.status(201).json({ status: "Success", id: users.length });
-    })
+// ===============================
+// POST /api/users
+// Create New User
+// ===============================
 
+app.post("/api/users", async (req, res) => {
+    try {
+        const body = req.body;
+
+        // Validate request body
+        if (
+            !body ||
+            !body.first_name ||
+            !body.last_name ||
+            !body.email ||
+            !body.gender ||
+            !body.job_title
+        ) {
+            return res.status(400).json({
+                msg: "All fields are required",
+            });
+        }
+
+        // Create user in MongoDB
+        const result = await User.create({
+            firstName: body.first_name,
+            lastName: body.last_name,
+            email: body.email,
+            gender: body.gender,
+            jobTitle: body.job_title,
+        });
+
+        return res.status(201).json({
+            msg: "success",
+            user: result,
+        });
+
+    } catch (error) {
+        console.log("Create User Error:", error);
+
+        return res.status(500).json({
+            msg: "Something went wrong",
+            error: error.message,
+        });
+    }
 });
+
+
+// ===============================
+// Start Server
+// ===============================
 
 app.listen(PORT, () => {
     console.log(`Server Started at PORT ${PORT}`);
-}); 
+});
