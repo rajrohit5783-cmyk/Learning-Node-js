@@ -18,5 +18,5 @@ fs.readFile(`${__dirname}/dog.txt`, 'utf-8', (err, data) => {
     })
     .catch(err => {
        console.log(err.message);
-        q});
+        });
 });
