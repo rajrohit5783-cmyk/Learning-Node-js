@@ -2,7 +2,7 @@ const tourController = require('./../controllers/tourController');
 const express = require('express');
 const router = express.Router();
 
-router.param('id', tourController.checkID)
+// router.param('id', tourController.checkID)
 
 
 //Create a checkBody middleware
@@ -13,7 +13,7 @@ router.param('id', tourController.checkID)
 router
   .route('/')
   .get(tourController.getAllTours)
-  .post(tourController.checkBody, tourController.createTour);
+  .post(tourController.createTour);
 
 router
   .route('/:id')
@@ -21,4 +21,4 @@ router
   .patch(tourController.updateTour)
   .delete(tourController.deleteTour);
 
-  module.exports = router;
+module.exports = router;

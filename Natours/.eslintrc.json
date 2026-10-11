@@ -1,38 +1,100 @@
 
+// {
+//   "extends": [
+//     "airbnb",
+//     "prettier",
+//     "plugin:node/recommended"
+//   ],
+//   "plugins": [
+//     "prettier",
+//     "node"
+//   ],
+//   "rules": {
+//     "prettier/prettier": "error",
+//     "spaced-comment": "off",
+//     "no-console": "off",
+//     "consistent-return": "off",
+//     "func-names": "off",
+//     "object-shorthand": "off",
+//     "no-process-exit": "off",
+//     "no-param-reassign": "off",
+//     "no-return-await": "off",
+//     "no-underscore-dangle": "off",
+//     "class-methods-use-this": "off",
+//     "prefer-destructuring": [
+//       "error",
+//       {
+//         "object": true,
+//         "array": false
+//       }
+//     ],
+//     "no-unused-vars": [
+//       "error",
+//       {
+//         "argsIgnorePattern": "req|res|next|val"
+//       }
+//     ]
+//   }
+// }
+
 {
+  "root": true,
+  "env": {
+    "node": true,
+    "es2022": true
+  },
   "extends": [
-    "airbnb",
-    "prettier",
-    "plugin:node/recommended"
+    "eslint:recommended",
+    "plugin:node/recommended",
+    "prettier"
   ],
   "plugins": [
-    "prettier",
     "node"
   ],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
   "rules": {
-    "prettier/prettier": "error",
-    "spaced-comment": "off",
-    "no-console": "off",
-    "consistent-return": "off",
-    "func-names": "off",
-    "object-shorthand": "off",
-    "no-process-exit": "off",
-    "no-param-reassign": "off",
-    "no-return-await": "off",
-    "no-underscore-dangle": "off",
-    "class-methods-use-this": "off",
-    "prefer-destructuring": [
-      "error",
+    "no-unused-vars": [
+      "warn",
       {
-        "object": true,
-        "array": false
+        "argsIgnorePattern": "^(req|res|next|val)$",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
       }
     ],
-    "no-unused-vars": [
+    "no-console": "off",
+    "no-undef": "error",
+    "no-unreachable": "error",
+    "no-constant-condition": "warn",
+    "no-debugger": "warn",
+    "eqeqeq": [
       "error",
+      "always"
+    ],
+    "curly": [
+      "error",
+      "all"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "quotes": [
+      "error",
+      "single",
       {
-        "argsIgnorePattern": "req|res|next|val"
+        "avoidEscape": true
       }
-    ]
+    ],
+    "comma-dangle": [
+      "error",
+      "never"
+    ],
+    "consistent-return": "off",
+    "no-param-reassign": "off",
+    "no-underscore-dangle": "off",
+    "no-return-await": "off",
+    "prefer-destructuring": "off"
   }
 }
