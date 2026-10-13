@@ -70,18 +70,40 @@ exports.createTour = async (req, res) => {
 
 
 
-exports.updateTour = (req, res) => {
-  res.status(200).json({
-    status: 'Success'
-    // data: {
-    //   tour: '<Updated tour here',
-    // },
-  });
+exports.updateTour = async (req, res) => {
+  try{
+    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body,{
+      new: true,
+      runValidators: true
+    });
+    res.status(200).json({
+      status: 'success',
+      data:{
+        // tour: tour
+        tour //both are same due to ES6 we no longer have to write when the name of property and value is same
+      }
+    });
+  } catch(err){
+    res.status(404).json({
+      status: 'fail',
+      message: err
+    });
+  }
 };
 
-exports.deleteTour = (req, res) => {
-  res.status(204).json({
+exports.deleteTour = async (req, res) => {
+  try{
+    await Tour.findByIdAndDelete(req.params.id);
+
+    res.status(204).json({
     status: 'Success',
     data: null
   });
+  } catch(err){
+    res.status(404).json({
+    status: 'Fail',
+    message: err
+  });
+  }
+  
 };
