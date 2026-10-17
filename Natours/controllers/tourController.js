@@ -1,4 +1,5 @@
 // const fs = require('fs');
+const { join } = require('node:path');
 const Tour = require('./../models/tourModels');
 
 // const tours = JSON.parse(
@@ -52,17 +53,49 @@ exports.getAllTours = async (req, res) => {
     let query = Tour.find(JSON.parse(queryStr)); //we should not use await here we can later use await so that we can use functions like sort by chaining in ths
 
     //2) Sorting
-    if(req.query.sort){
+    if (req.query.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
       console.log(sortBy);
       query = query.sort(sortBy);
-    }else{
+    } else {
       query = query.sort('-createdAt');
     }
+
+    //3) Field Limiting
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v'); // - is used for excluding
+    }
+
+    // 4) Pagination
+    // page=2&limit=10, 1-10 : page 1, 11-20: page 2, 21-30: page 3
+    const page = req.query.page * 1 || 1; // way of wriiting default value in Js and 1 after || is used to set the default page to 1
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+
+  query = query.sort({ _id: 1 }).skip(skip).limit(limit);
+  
+  if(req.query.page){
+    const numTours = await Tour.countDocuments();
+    if(skip >= numTours) {
+      throw new Error('This page does not exist');
+    }
+  }
 
 
     // EXECUTE QUERY
     const tours = await query;
+
+
+
+    console.log(
+      tours.map((tour) => ({
+        id: tour._id,
+        name: tour.name,
+      })),
+    );
 
     //SEND RESPONSE
     res.status(200).json({
