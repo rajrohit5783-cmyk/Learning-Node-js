@@ -1,7 +1,7 @@
 // const fs = require('fs');
 const { join } = require('node:path');
 const Tour = require('./../models/tourModels');
-const APIFeatures = require('./../utils/apiFeatures')
+const APIFeatures = require('./../utils/apiFeatures');
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
