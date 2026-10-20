@@ -7,7 +7,7 @@ const app = require('./app');
 
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
-  process.env.DATABASE_PASSWORD
+  process.env.DATABASE_PASSWORD,
 );
 
 //For the Atlas One (Server)
@@ -22,7 +22,7 @@ mongoose
 //   .then(() => console.log('MongoDB connected successfully!'))
 //   .catch((err) => console.error('MongoDB error:', err));
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log(`App runnig on port ${port}...`);
 });
